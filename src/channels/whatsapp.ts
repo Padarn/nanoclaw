@@ -287,7 +287,12 @@ export class WhatsAppChannel implements Channel {
       return;
     }
     try {
-      const key: { remoteJid: string; id: string; fromMe: boolean; participant?: string } = {
+      const key: {
+        remoteJid: string;
+        id: string;
+        fromMe: boolean;
+        participant?: string;
+      } = {
         remoteJid: jid,
         id: messageId,
         fromMe,

@@ -323,7 +323,9 @@ export function getNewMessages(
 export function getMessageById(
   id: string,
   chatJid: string,
-): { id: string; chat_jid: string; sender: string; is_from_me: number } | undefined {
+):
+  | { id: string; chat_jid: string; sender: string; is_from_me: number }
+  | undefined {
   return db
     .prepare(
       'SELECT id, chat_jid, sender, is_from_me FROM messages WHERE id = ? AND chat_jid = ?',
