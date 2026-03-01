@@ -320,6 +320,21 @@ export function getNewMessages(
   return { messages: rows, newTimestamp };
 }
 
+export function getMessageById(
+  id: string,
+  chatJid: string,
+):
+  | { id: string; chat_jid: string; sender: string; is_from_me: number }
+  | undefined {
+  return db
+    .prepare(
+      'SELECT id, chat_jid, sender, is_from_me FROM messages WHERE id = ? AND chat_jid = ?',
+    )
+    .get(id, chatJid) as
+    | { id: string; chat_jid: string; sender: string; is_from_me: number }
+    | undefined;
+}
+
 export function getMessagesSince(
   chatJid: string,
   sinceTimestamp: string,

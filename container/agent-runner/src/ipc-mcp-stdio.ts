@@ -63,6 +63,33 @@ server.tool(
 );
 
 server.tool(
+  'react_to_message',
+  `React to a WhatsApp message with an emoji. Use this for quick acknowledgements, confirmations, or emotional responses without sending a full text reply.
+
+Common reactions: 👍 (acknowledged/agree), ❤️ (love/appreciate), 😂 (funny), 😮 (surprised), 🙏 (thanks), ✅ (done/confirmed), ❌ (declined/wrong), 🎉 (celebration), 🤔 (thinking/noted).
+
+The message_id comes from the id attribute on <message> tags in the conversation. To remove a reaction, pass an empty string as the emoji.`,
+  {
+    message_id: z.string().describe('The message ID to react to (from the id attribute on <message> tags)'),
+    emoji: z.string().describe('The emoji to react with (e.g., "👍", "❤️", "✅"). Empty string to remove reaction.'),
+  },
+  async (args) => {
+    const data = {
+      type: 'reaction',
+      chatJid,
+      messageId: args.message_id,
+      emoji: args.emoji,
+      groupFolder,
+      timestamp: new Date().toISOString(),
+    };
+
+    writeIpcFile(MESSAGES_DIR, data);
+
+    return { content: [{ type: 'text' as const, text: `Reaction ${args.emoji} sent.` }] };
+  },
+);
+
+server.tool(
   'schedule_task',
   `Schedule a recurring or one-time task. The task will run as a full agent with access to all tools.
 
