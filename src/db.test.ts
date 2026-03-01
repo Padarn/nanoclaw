@@ -5,6 +5,7 @@ import {
   createTask,
   deleteTask,
   getAllChats,
+  getMessageById,
   getMessagesSince,
   getNewMessages,
   getTaskById,
@@ -135,6 +136,67 @@ describe('storeMessage', () => {
     );
     expect(messages).toHaveLength(1);
     expect(messages[0].content).toBe('updated');
+  });
+});
+
+// --- getMessageById ---
+
+describe('getMessageById', () => {
+  beforeEach(() => {
+    storeChatMetadata('group@g.us', '2024-01-01T00:00:00.000Z');
+  });
+
+  it('returns a stored message by id and chat_jid', () => {
+    store({
+      id: 'msg-react-1',
+      chat_jid: 'group@g.us',
+      sender: '123@s.whatsapp.net',
+      sender_name: 'Alice',
+      content: 'hello',
+      timestamp: '2024-01-01T00:00:01.000Z',
+    });
+
+    const msg = getMessageById('msg-react-1', 'group@g.us');
+    expect(msg).toBeDefined();
+    expect(msg!.id).toBe('msg-react-1');
+    expect(msg!.chat_jid).toBe('group@g.us');
+    expect(msg!.sender).toBe('123@s.whatsapp.net');
+    expect(msg!.is_from_me).toBe(0);
+  });
+
+  it('returns is_from_me=1 for own messages', () => {
+    store({
+      id: 'msg-react-2',
+      chat_jid: 'group@g.us',
+      sender: 'me@s.whatsapp.net',
+      sender_name: 'Me',
+      content: 'my message',
+      timestamp: '2024-01-01T00:00:02.000Z',
+      is_from_me: true,
+    });
+
+    const msg = getMessageById('msg-react-2', 'group@g.us');
+    expect(msg).toBeDefined();
+    expect(msg!.is_from_me).toBe(1);
+  });
+
+  it('returns undefined for non-existent message id', () => {
+    const msg = getMessageById('nonexistent', 'group@g.us');
+    expect(msg).toBeUndefined();
+  });
+
+  it('returns undefined when chat_jid does not match', () => {
+    store({
+      id: 'msg-react-3',
+      chat_jid: 'group@g.us',
+      sender: '123@s.whatsapp.net',
+      sender_name: 'Alice',
+      content: 'hello',
+      timestamp: '2024-01-01T00:00:03.000Z',
+    });
+
+    const msg = getMessageById('msg-react-3', 'other-group@g.us');
+    expect(msg).toBeUndefined();
   });
 });
 
