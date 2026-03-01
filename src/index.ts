@@ -24,6 +24,7 @@ import {
   getAllRegisteredGroups,
   getAllSessions,
   getAllTasks,
+  getMessageById,
   getMessagesSince,
   getNewMessages,
   getRouterState,
@@ -501,6 +502,26 @@ async function main(): Promise<void> {
       const channel = findChannel(channels, jid);
       if (!channel) throw new Error(`No channel for JID: ${jid}`);
       return channel.sendMessage(jid, text);
+    },
+    reactToMessage: async (jid, messageId, emoji) => {
+      const channel = findChannel(channels, jid);
+      if (!channel) throw new Error(`No channel for JID: ${jid}`);
+      if (!channel.reactToMessage) {
+        logger.warn({ jid }, 'Channel does not support reactions');
+        return;
+      }
+      const msg = getMessageById(messageId, jid);
+      if (!msg) {
+        logger.warn({ jid, messageId }, 'Message not found for reaction');
+        return;
+      }
+      await channel.reactToMessage(
+        jid,
+        messageId,
+        emoji,
+        msg.sender,
+        !!msg.is_from_me,
+      );
     },
     registeredGroups: () => registeredGroups,
     registerGroup,
